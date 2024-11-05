@@ -1,5 +1,6 @@
 name: Auto Close PR After 2 Minutes
 
+
 on:
   pull_request:
     types: [opened]  # Trigger immediately upon PR creation

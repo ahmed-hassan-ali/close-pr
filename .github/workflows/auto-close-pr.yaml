@@ -2,7 +2,7 @@ name: List Open PRs
 
 on:
   schedule:
-    - cron: "*/2 * * * *"  # Runs every 2 minutes
+    - cron: "* * * * *"  # Runs every minute
 
 jobs:
   list-open-prs:
@@ -11,16 +11,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install GitHub CLI
+      - name: Verify GitHub CLI Installation
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gh
-
-      - name: Authenticate with GitHub CLI
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "${GITHUB_TOKEN}" | gh auth login --with-token
+          if ! command -v gh &> /dev/null
+          then
+            echo "GitHub CLI not found, installing..."
+            sudo apt-get update
+            sudo apt-get install -y gh
+          else
+            echo "GitHub CLI is already installed."
+          fi
+          gh --version  # Check GH CLI version
 
       - name: List Open PRs with Creation Date
         env:

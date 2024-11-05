@@ -1,5 +1,6 @@
 name: Auto Close PRs
 
+
 on:
   schedule:
     - cron: '*/2 * * * *'  # Runs every 2 minutes

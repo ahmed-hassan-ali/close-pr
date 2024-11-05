@@ -1,27 +1,20 @@
-name: Auto Close PRs
+name: Auto Close PR After 2 Minutes
 
 on:
-  schedule:
-    - cron: '*/2 * * * *'  # Runs every 2 minutes
+  pull_request:
+    types: [opened]  # Trigger immediately upon PR creation
 
 jobs:
   auto-close-pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Wait for 2 minutes
+        run: sleep 120  # Wait for 2 minutes (120 seconds)
 
-      - name: Close PRs older than 2 minutes
+      - name: Close the PR
+        if: github.event.action == 'opened'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pr_data=$(gh pr list --state open --json number,createdAt --jq '.[] | select((now - (.createdAt | fromdateiso8601)) >= 120) | .number')
-          
-          if [ -n "$pr_data" ]; then
-            echo "Found PR(s) created more than 2 minutes ago. Closing..."
-            for pr_number in $pr_data; do
-              gh pr close $pr_number -c "Auto-closing PR after 2 minutes of creation."
-            done
-          else
-            echo "No PRs found that meet the 2-minute threshold."
-          fi
+          pr_number=${{ github.event.pull_request.number }}
+          gh pr close $pr_number -c "Auto-closing PR after 2 minutes of creation."
